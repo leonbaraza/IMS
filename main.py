@@ -94,7 +94,6 @@ def index():
 
 @app.route('/inventories', methods=['GET','POST'])
 def inventories():
-
     # check if the request is a post
     if request.method == 'POST':
         name = request.form['name']
@@ -112,6 +111,25 @@ def inventories():
 # @app.route('/inventories', methods=['POST'])
 # def send_inv():
 #     return render_template('inventories.html')
+
+
+
+@app.route('/add_stock', methods=['GET','POST'])
+def add_stock():
+    if request.method == 'POST':
+        stock = request.form['stock']
+        print(stock)
+
+    return render_template('inventories.html')
+
+
+@app.route('/make_sale', methods=['GET','POST'])
+def make_sale():
+    if request.method == 'POST':
+        total = request.form['quantity']
+        print(total)
+    return render_template('inventories.html')
+
 
 if __name__ == '__main__':
     app.run()
