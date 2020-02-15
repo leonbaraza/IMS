@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+
+
+    <h1>Welcome to my Home Page</h1>
+
+    <div id="chart">
+       <embed type="image/svg+xml" src= {{ pie_data|safe }} style='max-width:500px' />
+    </div>
+
+    <div id="chart">
+       <embed type="image/svg+xml" src= {{ line_data|safe }} style='max-width:500px' />
+    </div>
+{% endblock %}

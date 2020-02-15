@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% block title %}About Me{% endblock %}
+
+{% block content %}
+    {{ title }}
+    <h1>Welcome to my About Page</h1>
+    <div id="chart">
+       <embed type="image/svg+xml" src= {{ line_data|safe }} />
+    </div>
+{% endblock %}
