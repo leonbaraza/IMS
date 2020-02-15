@@ -1,8 +1,29 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, flash
 import pygal
 import psycopg2
 
+from flask_sqlalchemy import SQLAlchemy
+
 app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:Leon@1996@127.0.0.1:5432/classjan'
+db = SQLAlchemy(app)
+
+
+
+
+
+
+
+
+class Inventories(db.Model):
+    __tablename__ = 'new_inventories'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    type = db.Column(db.String, nullable=False)
+    buying_price = db.Column(db.Numeric)
+    selling_price = db.Column(db.Numeric, nullable=False)
+
+
 
 
 # @app.route('/<name>')
@@ -95,18 +116,27 @@ def index():
 @app.route('/inventories', methods=['GET','POST'])
 def inventories():
     # check if the request is a post
+
+    r = Inventories.query.all()
+    # for e in r:
+    #     print(e.name)
+
+
     if request.method == 'POST':
         name = request.form['name']
         type = request.form['type']
         bp = request.form['buying_price']
         sp = request.form['selling_price']
 
-        print(name)
-        print(type)
-        print(bp)
-        print(sp)
+        record = Inventories(name=name, type=type, buying_price=bp,selling_price=sp)
+        db.session.add(record)
+        db.session.commit()
+        #
+        # flash('You were successfully logged in')
 
-    return render_template('inventories.html')
+        return redirect(url_for('inventories'))
+
+    return render_template('inventories.html', records = r)
 
 # @app.route('/inventories', methods=['POST'])
 # def send_inv():

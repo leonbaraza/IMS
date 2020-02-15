@@ -91,7 +91,7 @@
         </thead>
         <tbody>
         <tr>
-            <th scope="row">1</th>
+            <th scope="row">0</th>
             <td>Bread</td>
             <td>Product</td>
             <td>100</td>
@@ -106,7 +106,7 @@
             </td>
         </tr>
         <tr>
-            <th scope="row">2</th>
+            <th scope="row">0</th>
             <td>Database Deve</td>
             <td>Service</td>
             <td>0</td>
@@ -191,6 +191,107 @@
                 <button type="submit" class="btn btn-danger" data-dismiss="modal">Delete</button>
             </td>
         </tr>
+
+
+
+
+        {% set count = namespace(value=1) %}
+        {% for each in records %}
+            <tr>
+            <th scope="row">{{ count.value }}</th>
+            <td>{{ each.name }}</td>
+            <td>{{ each.type }}</td>
+            <td>{{ each.buying_price }}</td>
+            <td>{{ each.selling_price }}</td>
+            <td>0</td>
+            <td>
+                <button type="submit" class="btn btn-success" data-toggle="modal" data-target="#{{ each.name }}">Add Stock
+                </button>
+
+
+                <div class="modal fade" id="{{ each.name }}" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Add Stock</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ url_for('add_stock') }}" method="POST">
+                                    <div class="form-group">
+                                        <label for="formGroupExampleInput2">Stock</label>
+                                        <input name="stock" type="text" class="form-control"
+                                               id="formGroupExampleInput2"
+                                               placeholder="Enter total Stock">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <button type="submit" class="btn btn-primary" data-dismiss="modal">Edit</button>
+                <button type="submit" class="btn btn-warning" data-toggle="modal" data-target="#{{ each.name }}Add">Make sale
+                </button>
+
+
+                <div class="modal fade" id="{{ each.name }}Add" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Make Sale</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ url_for('make_sale') }}" method="POST">
+                                    <div class="form-group">
+                                        <label for="formGroupExampleInput2">Quantity</label>
+                                        <input name="quantity" type="text" class="form-control"
+                                               id="formGroupExampleInput2"
+                                               placeholder="Enter Quantity">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close
+                                        </button>
+                                    </div>
+
+                                </form>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <button type="submit" class="btn btn-info" data-dismiss="modal">View sales</button>
+                <button type="submit" class="btn btn-danger" data-dismiss="modal">Delete</button>
+            </td>
+        </tr>
+            {% set count.value = count.value + 1 %}
+        {% endfor %}
+
+
+
+
+
+
+
 
         </tbody>
     </table>
