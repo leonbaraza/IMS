@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import pygal
 import psycopg2
+import datetime
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -23,13 +24,31 @@ class Inventories(db.Model):
     buying_price = db.Column(db.Numeric)
     selling_price = db.Column(db.Numeric, nullable=False)
 
+    stock = db.relationship('Stock', backref='inventories', lazy=True)
+    sales = db.relationship('Sales', backref='inventories', lazy=True)
 
 
 
-# @app.route('/<name>')
-# def hello_world(name):
-#     print(name)
-#     return 'Hello World'
+class Stock(db.Model):
+    __tablename__='new_stock'
+    id = db.Column(db.Integer, primary_key=True)
+    inv_id = db.Column(db.Integer, db.ForeignKey('new_inventories.id'))
+    stock = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+
+class Sales(db.Model):
+    __tablename__='new_sales'
+    id = db.Column(db.Integer, primary_key=True)
+    inv_id = db.Column(db.Integer, db.ForeignKey('new_inventories.id'))
+    quantity = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+
+
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 
 @app.route('/person/<name>/<int:age>')
