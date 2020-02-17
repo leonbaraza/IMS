@@ -6,7 +6,7 @@ import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:Leon@29@127.0.0.1:5432/classjan'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:Leon@1996@127.0.0.1:5432/classjan'
 db = SQLAlchemy(app)
 
 
@@ -49,6 +49,11 @@ class Sales(db.Model):
 @app.before_first_request
 def create_tables():
     db.create_all()
+
+
+@app.route('/adding/<x>/<y>')
+def addition(x,y):
+    return str(int(x)+int(y))
 
 
 @app.route('/person/<name>/<int:age>')
@@ -163,21 +168,29 @@ def inventories():
 
 
 
-@app.route('/add_stock', methods=['GET','POST'])
-def add_stock():
+@app.route('/add_stock/<inv_id>', methods=['GET','POST'])
+def add_stock(inv_id):
     if request.method == 'POST':
+        # print(inv_id)
         stock = request.form['stock']
-        print(stock)
 
-    return render_template('inventories.html')
+        stock = Stock(inv_id=inv_id, stock=stock)
+        db.session.add(stock)
+        db.session.commit()
+        # print(stock)
+
+    return redirect(url_for('inventories'))
 
 
-@app.route('/make_sale', methods=['GET','POST'])
-def make_sale():
+@app.route('/make_sale/<inv_id>', methods=['GET','POST'])
+def make_sale(inv_id):
     if request.method == 'POST':
+        # print(inv_id)
         total = request.form['quantity']
-        print(total)
-    return render_template('inventories.html')
+        sale = Sales(inv_id=inv_id, quantity=total)
+        db.session.add(sale)
+        db.session.commit()
+    return redirect(url_for('inventories'))
 
 
 if __name__ == '__main__':
