@@ -2,18 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 import pygal
 import psycopg2
 import datetime
+from Config.Config import Development
 
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:Leon@29@127.0.0.1:5432/classjan'
+# app.config.from_object(Development)
+app.config['SQLALCHEMY_DATABASE_URI']= 'postgresql://postgres:Leon@1996@127.0.0.1:5432/classjan'
 db = SQLAlchemy(app)
-
-
-
-
-
-
 
 
 class Inventories(db.Model):
@@ -23,11 +19,8 @@ class Inventories(db.Model):
     type = db.Column(db.String, nullable=False)
     buying_price = db.Column(db.Numeric)
     selling_price = db.Column(db.Numeric, nullable=False)
-
     stock = db.relationship('Stock', backref='inventories', lazy=True)
     sales = db.relationship('Sales', backref='inventories', lazy=True)
-
-
 
 class Stock(db.Model):
     __tablename__='new_stock'
@@ -36,14 +29,12 @@ class Stock(db.Model):
     stock = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-
 class Sales(db.Model):
     __tablename__='new_sales'
     id = db.Column(db.Integer, primary_key=True)
     inv_id = db.Column(db.Integer, db.ForeignKey('new_inventories.id'))
     quantity = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-
 
 
 @app.before_first_request
@@ -66,14 +57,14 @@ def add(x,y):
     total = x+y
     return f'Sum of {x} and {y} is {total}'
 
+conn = psycopg2.connect("dbname='classjan' user='postgres' host='localhost' password='Leon@1996'")
+
+cur = conn.cursor()
+
+
 
 @app.route('/')
 def index():
-    conn = psycopg2.connect("dbname='classjan' user='postgres' host='localhost' password='Leon@1996'")
-
-    cur = conn.cursor()
-
-
 
     data =[('Internet Explorer', 19.5),
            ('Firefox', 36.6),
@@ -142,9 +133,22 @@ def inventories():
     # check if the request is a post
 
     r = Inventories.query.all()
-    # for e in r:
-    #     print(e.name)
 
+
+    cur.execute("""SELECT inv_id, sum(quantity) as "stock"
+	FROM ((SELECT st.inv_id, sum(stock) as "quantity"
+	FROM public.new_stock as st
+	GROUP BY inv_id) union all
+		 (SELECT sa.inv_id, - sum(quantity) as "quantity"
+	FROM public.new_sales as sa
+	GROUP BY inv_id) 
+		 ) stsa
+	GROUP BY inv_id
+	ORDER BY inv_id;""")
+
+    remStock = cur.fetchall()
+    for each in remStock:
+        print(each[1])
 
     if request.method == 'POST':
         name = request.form['name']
@@ -160,7 +164,7 @@ def inventories():
 
         return redirect(url_for('inventories'))
 
-    return render_template('inventories.html', records = r)
+    return render_template('inventories.html', records = r, remStock = remStock)
 
 # @app.route('/inventories', methods=['POST'])
 # def send_inv():
